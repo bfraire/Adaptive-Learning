@@ -14,3 +14,13 @@ export function sliceMarkdownByH2(markdown: string, heading: string): string | n
   return nextIdx === -1 ? afterStart.trim() : afterStart.slice(0, nextIdx).trim();
 }
 
+/**
+ * Returns all H2 heading strings found in the markdown, in document order.
+ */
+export function listH2Headings(markdown: string): string[] {
+  return markdown
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3).trim());
+}
+
