@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { listH2Headings } from "@/lib/sliceMarkdown";
+
+function listH2Headings(markdown: string): string[] {
+  return markdown
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3).trim());
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
