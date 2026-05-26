@@ -631,7 +631,7 @@ export default function Section11Page() {
             {/* Previous section */}
             <div className="flex-1">
               {prevSection ? (
-                <Link href={prevSection.route} className="group flex flex-col gap-0.5">
+                <Link href={prevSection.route!} className="group flex flex-col gap-0.5">
                   <span className="flex items-center gap-1 text-xs font-medium text-gray-400 group-hover:text-blue-500 transition-colors mb-1">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
