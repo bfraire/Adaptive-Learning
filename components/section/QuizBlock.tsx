@@ -1,6 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { InlineMath, BlockMath } from "react-katex";
+
+function renderMath(text: string) {
+  const parts = text.split(/(\$\$[\s\S]+?\$\$|\$[^$]+?\$)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("$$") && part.endsWith("$$"))
+          return <BlockMath key={i} math={part.slice(2, -2)} />;
+        if (part.startsWith("$") && part.endsWith("$"))
+          return <InlineMath key={i} math={part.slice(1, -1)} />;
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -321,7 +337,7 @@ function RemediationCard({ block, question }: RemediationCardProps) {
         <span style={{ fontSize: 13 }}>{style.icon}</span>
         {label}
       </p>
-      <p className="text-gray-700">{question.explanation}</p>
+      <p className="text-gray-700">{renderMath(question.explanation)}</p>
 
       {block.type === "stepwise-derivation" && (
         <p className="mt-2 text-gray-500 text-xs">
@@ -419,88 +435,100 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   );
 }
 
-// ─── Score summary ────────────────────────────────────────────────────────────
+// ─── Difficulty ordering ──────────────────────────────────────────────────────
 
-type SummaryProps = {
-  results: { correct: boolean }[];
-  config: QuizConfig;
-  onRetry: () => void;
+const DIFFICULTY_RANK: Record<Difficulty, number> = { scaffold: 0, standard: 1, challenge: 2 };
+
+// ─── End screens ─────────────────────────────────────────────────────────────
+
+function AllCorrectScreen({ onReset }: { onReset: () => void }) {
+  return (
+    <div className="text-center py-6 space-y-3" style={{ animation: "fadeSlideIn 0.3s ease both" }}>
+      <div className="text-3xl">✓</div>
+      <p className="font-semibold text-gray-900">All correct!</p>
+      <p className="text-sm text-gray-500">
+        Ready for more? The adaptive practice session has additional problems for this section.
+      </p>
+      <div className="flex justify-center gap-3 pt-1">
+        <a
+          href="/practice/1-1"
+          className="rounded-xl bg-gray-900 text-white text-sm font-medium px-5 py-2 hover:bg-gray-700 transition-colors"
+        >
+          Adaptive practice →
+        </a>
+        <button
+          onClick={onReset}
+          className="rounded-xl border border-gray-200 text-gray-600 text-sm font-medium px-5 py-2 hover:bg-gray-50 transition-colors"
+        >
+          Restart
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type EscalationItem = {
+  failed: QuizQuestion;
+  easier: QuizQuestion | null;
 };
 
-function ScoreSummary({ results, config, onRetry }: SummaryProps) {
-  const correct = results.filter((r) => r.correct).length;
-  const total = results.length;
-  const pct = correct / total;
-
-  const band =
-    pct < 0.7
-      ? { label: "Keep practicing", color: "text-blue-600", note: "More worked examples are on the way." }
-      : pct <= 0.9
-      ? { label: "Solid work", color: "text-gray-700", note: "We'll focus on the concepts you missed." }
-      : { label: "Excellent", color: "text-amber-600", note: "Ready for more abstract problems." };
-
-  const activeRemediations = config.remediationBlocks.filter(
-    (b) =>
-      b.type !== "worked-example" &&
-      b.type !== "targeted-practice" &&
-      b.type !== "abstract-challenge"
-  );
+function EscalationScreen({
+  items,
+  onReset,
+}: {
+  items: EscalationItem[];
+  onReset: () => void;
+}) {
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
 
   return (
-    <div style={{ animation: "fadeSlideIn 0.3s ease both" }}>
-      {/* Score ring */}
-      <div className="flex flex-col items-center py-6">
-        <div className="relative w-24 h-24 mb-3">
-          <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
-            <circle cx="40" cy="40" r="34" fill="none" stroke="#f3f4f6" strokeWidth="7" />
-            <circle
-              cx="40"
-              cy="40"
-              r="34"
-              fill="none"
-              stroke={pct >= 0.9 ? "#d97706" : pct >= 0.7 ? "#111827" : "#3b82f6"}
-              strokeWidth="7"
-              strokeLinecap="round"
-              strokeDasharray={`${pct * 213.6} 213.6`}
-              style={{ transition: "stroke-dasharray 0.8s cubic-bezier(0.4,0,0.2,1)" }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-gray-900 leading-none">
-              {correct}/{total}
-            </span>
-          </div>
+    <div style={{ animation: "fadeSlideIn 0.3s ease both" }} className="space-y-4">
+      <p className="text-sm font-semibold text-gray-700">
+        Let&apos;s try a different approach for the concepts you missed.
+      </p>
+
+      {items.map(({ failed, easier }) => (
+        <div key={failed.id} className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
+          <p className="text-xs font-semibold text-amber-700">{failed.concept}</p>
+
+          {easier ? (
+            <>
+              <p className="text-sm text-gray-800">{renderMath(easier.question)}</p>
+              {revealed.has(easier.id) ? (
+                <div className="rounded-lg bg-white border border-amber-200 px-3 py-2 text-sm text-gray-700">
+                  {renderMath(easier.explanation)}
+                </div>
+              ) : (
+                <button
+                  onClick={() => setRevealed((s) => new Set([...s, easier.id]))}
+                  className="text-xs text-amber-700 underline hover:text-amber-900"
+                >
+                  Show worked answer
+                </button>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-gray-600">
+              Review the <span className="font-medium">{failed.concept}</span> example in the section above, then try again.
+            </p>
+          )}
         </div>
-        <p className={`text-base font-semibold ${band.color}`}>{band.label}</p>
-        <p className="text-sm text-gray-400 mt-0.5">{band.note}</p>
+      ))}
+
+      <div className="flex gap-3 pt-1">
+        <a
+          href="/practice/1-1"
+          className="rounded-xl bg-gray-900 text-white text-sm font-medium px-5 py-2 hover:bg-gray-700 transition-colors"
+        >
+          Adaptive practice →
+        </a>
+        <button
+          onClick={onReset}
+          className="rounded-xl border border-gray-200 text-gray-600 text-sm font-medium px-5 py-2 hover:bg-gray-50 transition-colors"
+        >
+          Try again
+        </button>
       </div>
-
-      {/* Active remediation signals */}
-      {activeRemediations.length > 0 && (
-        <div className="border border-gray-100 rounded-xl px-4 py-3 mb-4">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-            Adapting next session
-          </p>
-          <ul className="space-y-1.5">
-            {activeRemediations.map((b, i) => {
-              const s = getRemediationStyle(b.type);
-              return (
-                <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                  <span className={`mt-0.5 text-xs ${s.label}`}>{s.icon}</span>
-                  <span>{getRemediationLabel(b.type)}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      <button
-        onClick={onRetry}
-        className="w-full rounded-xl bg-gray-900 text-white text-sm font-medium py-2.5 hover:bg-gray-700 transition-colors"
-      >
-        Continue
-      </button>
     </div>
   );
 }
@@ -562,14 +590,23 @@ export function QuizBlock({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Select questions based on config
+  // Retry / escalation state
+  const [roundPool, setRoundPool] = useState<QuizQuestion[] | null>(null); // null = use all questions
+  const [masteredIds, setMasteredIds] = useState<Set<string>>(new Set());
+  const [wrongAttemptsMap, setWrongAttemptsMap] = useState<Record<string, number>>({});
+  const [retryRound, setRetryRound] = useState(0); // 0 = first pass, 1 = first retry
+  const [allCorrect, setAllCorrect] = useState(false);
+  const [escalationItems, setEscalationItems] = useState<EscalationItem[]>([]);
+
+  // Select questions based on config, respecting roundPool when set
   const activeQuestions = (() => {
-    const focused = questions.filter(
+    const base = roundPool ?? questions;
+    const focused = base.filter(
       (q) =>
         q.difficulty === config.difficulty ||
         config.focusConcepts.includes(q.concept)
     );
-    const pool = focused.length >= config.questionCount ? focused : questions;
+    const pool = focused.length >= config.questionCount ? focused : base;
     return pool.slice(0, config.questionCount);
   })();
 
@@ -615,20 +652,101 @@ export function QuizBlock({
   }, [selectedOption, currentQuestion, displayQuestion]);
 
   const handleNext = useCallback(() => {
-    if (currentIndex + 1 >= activeQuestions.length) {
-      const allResults = [...sessionResults];
-      saveHistory([...history, ...allResults]);
-      setDone(true);
-      onComplete?.(allResults, config);
-    } else {
+    // Not the last question — just advance
+    if (currentIndex + 1 < activeQuestions.length) {
       setCurrentIndex((i) => i + 1);
       setSelectedOption(null);
       setSubmitted(false);
       questionStartTime.current = Date.now();
+      return;
     }
-  }, [currentIndex, activeQuestions.length, sessionResults, history, config, onComplete]);
 
-  const handleRetry = useCallback(() => {
+    // Round complete
+    const roundResults = [...sessionResults];
+    const newHistory = [...history, ...roundResults];
+    saveHistory(newHistory);
+    setHistoryState(newHistory);
+    onComplete?.(roundResults, config);
+
+    const correctIds = new Set(roundResults.filter((r) => r.correct).map((r) => r.questionId));
+    const wrongIds = roundResults.filter((r) => !r.correct).map((r) => r.questionId);
+
+    const newMastered = new Set([...masteredIds, ...correctIds]);
+    setMasteredIds(newMastered);
+
+    const newWrongAttempts = { ...wrongAttemptsMap };
+    for (const id of wrongIds) {
+      newWrongAttempts[id] = (newWrongAttempts[id] ?? 0) + 1;
+    }
+    setWrongAttemptsMap(newWrongAttempts);
+
+    // All correct — show completion screen
+    if (wrongIds.length === 0) {
+      setAllCorrect(true);
+      setDone(true);
+      return;
+    }
+
+    // Second attempt exhausted — escalate
+    if (retryRound >= 1) {
+      const items: EscalationItem[] = questions
+        .filter((q) => wrongIds.includes(q.id))
+        .map((failed) => {
+          const easier =
+            questions.find(
+              (alt) =>
+                alt.concept === failed.concept &&
+                DIFFICULTY_RANK[alt.difficulty] < DIFFICULTY_RANK[failed.difficulty] &&
+                alt.id !== failed.id
+            ) ?? null;
+          return { failed, easier };
+        });
+      setEscalationItems(items);
+      setDone(true);
+      return;
+    }
+
+    // First retry — show only wrong questions, rebuild config from updated history
+    const wrongQuestions = questions.filter(
+      (q) => wrongIds.includes(q.id) && !newMastered.has(q.id)
+    );
+    setRoundPool(wrongQuestions);
+    setRetryRound((r) => r + 1);
+
+    const signals = loadReadingSignals();
+    const prefs = (() => {
+      try { return JSON.parse(localStorage.getItem("userPreferences") ?? "{}"); }
+      catch { return {}; }
+    })();
+    const lastScore =
+      newHistory.length === 0
+        ? 0.75
+        : newHistory.slice(-5).filter((r) => r.correct).length / Math.min(5, newHistory.length);
+    const newState = computeLearnerState(
+      newHistory, signals,
+      prefs.interest ?? "general",
+      prefs.contentStyle ?? "steps",
+      lastScore
+    );
+    setConfig(buildQuizConfig(newState, sectionConcepts));
+
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setSubmitted(false);
+    setSessionResults([]);
+    questionStartTime.current = Date.now();
+  }, [
+    currentIndex, activeQuestions.length, sessionResults, history, config, onComplete,
+    masteredIds, wrongAttemptsMap, retryRound, questions, sectionConcepts,
+  ]);
+
+  const handleReset = useCallback(() => {
+    setRoundPool(null);
+    setMasteredIds(new Set());
+    setWrongAttemptsMap({});
+    setRetryRound(0);
+    setAllCorrect(false);
+    setEscalationItems([]);
     setCurrentIndex(0);
     setSelectedOption(null);
     setSubmitted(false);
@@ -688,17 +806,19 @@ export function QuizBlock({
         {/* Header */}
         <div className="flex items-center justify-between mb-1">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
-            {title ?? "Check your understanding"}
+            {retryRound > 0
+              ? `Retry — missed questions`
+              : (title ?? "Check your understanding")}
           </p>
           <DifficultyPip difficulty={config.difficulty} />
         </div>
 
         {done ? (
-          <ScoreSummary
-            results={sessionResults}
-            config={config}
-            onRetry={handleRetry}
-          />
+          allCorrect ? (
+            <AllCorrectScreen onReset={handleReset} />
+          ) : (
+            <EscalationScreen items={escalationItems} onReset={handleReset} />
+          )
         ) : (
           <>
             <ProgressBar current={currentIndex + 1} total={activeQuestions.length} />
@@ -709,7 +829,7 @@ export function QuizBlock({
               className="text-sm font-medium text-gray-900 leading-relaxed mb-4"
               style={{ animation: "fadeSlideIn 0.2s ease both" }}
             >
-              {displayQuestion.question}
+              {renderMath(displayQuestion.question)}
             </p>
 
             {/* Hint */}
@@ -730,33 +850,25 @@ export function QuizBlock({
                   base += isSelected
                     ? "border-gray-900 bg-gray-900 text-white"
                     : "border-gray-200 hover:border-gray-400 text-gray-700 hover:bg-gray-50";
+                } else if (isSelected && isCorrect) {
+                  base += "border-green-300 bg-green-50 text-green-800";
+                } else if (isSelected && !isCorrect) {
+                  base += "border-red-300 bg-red-50 text-red-700 quiz-option-shake";
                 } else {
-                  if (isCorrect) {
-                    base += "border-green-300 bg-green-50 text-green-800";
-                  } else if (isSelected && !isCorrect) {
-                    base += "border-red-300 bg-red-50 text-red-700 quiz-option-shake";
-                  } else {
-                    base += "border-gray-100 text-gray-400";
-                  }
+                  base += "border-gray-100 text-gray-400";
                 }
 
                 const marker = submitted
-                  ? isCorrect
-                    ? "✓"
-                    : isSelected
-                    ? "✗"
-                    : String.fromCharCode(65 + i)
+                  ? isSelected && isCorrect ? "✓"
+                  : isSelected ? "✗"
+                  : String.fromCharCode(65 + i)
                   : String.fromCharCode(65 + i);
 
                 const markerColor = submitted
-                  ? isCorrect
-                    ? "text-green-600 font-bold"
-                    : isSelected
-                    ? "text-red-500 font-bold"
-                    : "text-gray-300"
-                  : isSelected
-                  ? "text-white"
-                  : "text-gray-400";
+                  ? isSelected && isCorrect ? "text-green-600 font-bold"
+                  : isSelected ? "text-red-500 font-bold"
+                  : "text-gray-300"
+                  : isSelected ? "text-white" : "text-gray-400";
 
                 return (
                   <button
@@ -770,7 +882,7 @@ export function QuizBlock({
                     >
                       {marker}
                     </span>
-                    <span>{opt}</span>
+                    <span>{renderMath(opt)}</span>
                   </button>
                 );
               })}
@@ -784,14 +896,23 @@ export function QuizBlock({
               />
             )}
 
-            {/* Correct answer confirmation */}
+            {/* Feedback */}
             {submitted && selectedOption === displayQuestion.correctIndex && (
               <div
                 className="mt-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
                 style={{ animation: "fadeSlideIn 0.2s ease both" }}
               >
                 <span className="font-semibold">Correct. </span>
-                {currentQuestion.explanation}
+                {renderMath(currentQuestion.explanation)}
+              </div>
+            )}
+            {submitted && selectedOption !== displayQuestion.correctIndex && (
+              <div
+                className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                style={{ animation: "fadeSlideIn 0.2s ease both" }}
+              >
+                <span className="font-semibold">Not quite. </span>
+                Try a different option and move on — you&apos;ll see this concept again.
               </div>
             )}
 
@@ -813,7 +934,7 @@ export function QuizBlock({
                   onClick={handleNext}
                   className="rounded-xl bg-gray-900 text-white text-sm font-medium px-5 py-2 hover:bg-gray-700 transition-colors"
                 >
-                  {currentIndex + 1 >= activeQuestions.length ? "See results" : "Next →"}
+                  {currentIndex + 1 >= activeQuestions.length ? "Finish →" : "Next →"}
                 </button>
               )}
             </div>

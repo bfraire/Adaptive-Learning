@@ -145,6 +145,41 @@ export default function Section11Page() {
         source: { chapterId, sectionId, variant: R, heading: "What is a Function? Example 2" },
       },
       {
+        id: "quiz-cp-1-1",
+        kind: "quiz",
+        title: "Checkpoint 1.1 — Evaluating Functions",
+        sectionConcepts: ["Function Evaluation", "Notation"],
+        questions: [
+          {
+            id: "cp-1-1-a",
+            question: "For $f(x) = x^2 - 3x + 5$, what is $f(1)$?",
+            options: ["$3$", "$7$", "$1$", "$5$"],
+            correctIndex: 0,
+            explanation: "$f(1) = 1^2 - 3(1) + 5 = 1 - 3 + 5 = 3$",
+            concept: "Function Evaluation",
+            errorCategory: "formula-step",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+          {
+            id: "cp-1-1-b",
+            question: "For $f(x) = x^2 - 3x + 5$, which expression equals $f(a+h)$?",
+            options: [
+              "$a^2 + 2ah + h^2 - 3a - 3h + 5$",
+              "$a^2 + h^2 - 3a + 5$",
+              "$a^2 - 3a + 5 + h$",
+              "$a^2 + 2ah + h^2 + 5$",
+            ],
+            correctIndex: 0,
+            explanation: "Substitute $x = a+h$: $(a+h)^2 - 3(a+h) + 5 = a^2 + 2ah + h^2 - 3a - 3h + 5$.",
+            concept: "Function Evaluation",
+            errorCategory: "formula-step",
+            contentType: "formula",
+            difficulty: "challenge",
+          },
+        ],
+      },
+      {
         id: "what-is-a-function-5",
         kind: "text",
         label: "Original",
@@ -245,6 +280,46 @@ export default function Section11Page() {
         calloutType: "note",
         title: "Example",
         source: { chapterId, sectionId, variant: R, heading: "In Text Example 2" },
+      },
+      {
+        id: "quiz-cp-1-2",
+        kind: "quiz",
+        title: "Checkpoint 1.2 — Domain and Range",
+        sectionConcepts: ["Domain", "Range", "Square Root Restriction"],
+        questions: [
+          {
+            id: "cp-1-2-a",
+            question: "What is the domain of $f(x) = \\sqrt{4 - 2x} + 5$?",
+            options: [
+              "$\\{x \\mid x \\leq 2\\}$",
+              "$\\{x \\mid x \\geq 2\\}$",
+              "$(-\\infty, \\infty)$",
+              "$\\{x \\mid x \\leq 4\\}$",
+            ],
+            correctIndex: 0,
+            explanation: "The radicand must be non-negative: $4 - 2x \\geq 0 \\Rightarrow x \\leq 2$.",
+            concept: "Domain — Square Root Restriction",
+            errorCategory: "formula-step",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+          {
+            id: "cp-1-2-b",
+            question: "What is the range of $f(x) = \\sqrt{4 - 2x} + 5$?",
+            options: [
+              "$\\{y \\mid y \\geq 5\\}$",
+              "$\\{y \\mid y \\geq 0\\}$",
+              "$(-\\infty, \\infty)$",
+              "$\\{y \\mid y \\geq 4\\}$",
+            ],
+            correctIndex: 0,
+            explanation: "Since $\\sqrt{4-2x} \\geq 0$, adding 5 gives $f(x) \\geq 5$.",
+            concept: "Range",
+            errorCategory: "conceptual",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+        ],
       },
       // ── Piecewise-Defined Functions ────────────────────────────────────────
       {
@@ -375,6 +450,30 @@ export default function Section11Page() {
         alt: "Graph illustrating the vertical line test for functions",
         maxHeightPx: 320,
       },
+      {
+        id: "quiz-cp-1-3",
+        kind: "quiz",
+        title: "Checkpoint 1.3 — Zeros of a Function",
+        sectionConcepts: ["Zeros", "Factoring", "Polynomial Functions"],
+        questions: [
+          {
+            id: "cp-1-3-a",
+            question: "What are the zeros of $f(x) = x^3 - 5x^2 + 6x$?",
+            options: [
+              "$x = 0,\\, 2,\\, 3$",
+              "$x = 1,\\, 2,\\, 3$",
+              "$x = 0,\\, 3,\\, 6$",
+              "$x = 0,\\, 2,\\, 5$",
+            ],
+            correctIndex: 0,
+            explanation: "Factor: $x(x^2 - 5x + 6) = x(x-2)(x-3)$. Setting each factor to zero gives $x = 0, 2, 3$.",
+            concept: "Zeros of a Function",
+            errorCategory: "formula-step",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+        ],
+      },
       // ── Increasing and Decreasing Functions ───────────────────────────────
       {
         id: "increasing-decreasing-1",
@@ -449,6 +548,46 @@ export default function Section11Page() {
         title: "Combine Functions with Mathematical Operators",
         source: { chapterId, sectionId, variant: S, heading: "Combining Functions with Mathematical Operators" },
       },
+      {
+        id: "quiz-cp-1-4",
+        kind: "quiz",
+        title: "Checkpoint 1.4 — Arithmetic of Functions",
+        sectionConcepts: ["Combining Functions", "Domain Restrictions"],
+        questions: [
+          {
+            id: "cp-1-4-a",
+            question: "For $f(x) = x^2 + 3$ and $g(x) = 2x - 5$, what is $\\left(\\dfrac{f}{g}\\right)(x)$?",
+            options: [
+              "$\\dfrac{x^2 + 3}{2x - 5}$",
+              "$\\dfrac{2x - 5}{x^2 + 3}$",
+              "$\\dfrac{x^2 - 2}{2x}$",
+              "$\\dfrac{x^2 + 3}{2x + 5}$",
+            ],
+            correctIndex: 0,
+            explanation: "$(f/g)(x) = f(x)/g(x) = (x^2+3)/(2x-5)$.",
+            concept: "Arithmetic of Functions",
+            errorCategory: "formula-step",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+          {
+            id: "cp-1-4-b",
+            question: "What value must be excluded from the domain of $\\left(\\dfrac{f}{g}\\right)(x)$ when $g(x) = 2x - 5$?",
+            options: [
+              "$x = \\dfrac{5}{2}$",
+              "$x = 5$",
+              "$x = 2$",
+              "No values are excluded",
+            ],
+            correctIndex: 0,
+            explanation: "The denominator $g(x) = 2x-5 = 0$ when $x = 5/2$, so $x = 5/2$ is excluded.",
+            concept: "Domain Restrictions",
+            errorCategory: "conceptual",
+            contentType: "formula",
+            difficulty: "scaffold",
+          },
+        ],
+      },
       // ── Function Composition ───────────────────────────────────────────────
       {
         id: "function-composition",
@@ -478,6 +617,46 @@ export default function Section11Page() {
         alt: "Graph illustrating the domain and range of a function",
         caption:"**Figure 1.12** For the composite function $g ∘ f$, we have $(g ∘ f)(1) = 4$, $(g ∘ f)(2) = 5$, and $(g ∘ f)(3) = 4$",
         maxHeightPx: 320,
+      },
+      {
+        id: "quiz-cp-1-5",
+        kind: "quiz",
+        title: "Checkpoint 1.5 & 1.6 — Function Composition",
+        sectionConcepts: ["Composite Functions", "Composition Order"],
+        questions: [
+          {
+            id: "cp-1-5-a",
+            question: "Let $f(x) = 2 - 5x$ and $g(x) = \\sqrt{x}$. Which expression equals $(f \\circ g)(x)$?",
+            options: [
+              "$2 - 5\\sqrt{x}$",
+              "$\\sqrt{2 - 5x}$",
+              "$5\\sqrt{x} - 2$",
+              "$(2 - 5x)^2$",
+            ],
+            correctIndex: 0,
+            explanation: "$(f \\circ g)(x) = f(g(x)) = f(\\sqrt{x}) = 2 - 5\\sqrt{x}$.",
+            concept: "Composite Functions",
+            errorCategory: "formula-step",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+          {
+            id: "cp-1-6-a",
+            question: "An item is on sale for 10% off, then a coupon takes an additional 30% off the sale price. If the original price is $x$ dollars, what is the final price?",
+            options: [
+              "$0.63x$",
+              "$0.60x$",
+              "$0.40x$",
+              "$0.37x$",
+            ],
+            correctIndex: 0,
+            explanation: "Sale price: $0.9x$. Coupon: $0.7 \\times 0.9x = 0.63x$.",
+            concept: "Composite Functions",
+            errorCategory: "scenario-misapply",
+            contentType: "example",
+            difficulty: "standard",
+          },
+        ],
       },
       // ── Symmetry of Functions ──────────────────────────────────────────────
       {
@@ -530,6 +709,30 @@ export default function Section11Page() {
         source: { chapterId, sectionId, variant: S, heading: "Definition: Even and Odd Functions" },
       },
       {
+        id: "quiz-cp-1-7",
+        kind: "quiz",
+        title: "Checkpoint 1.7 — Even and Odd Functions",
+        sectionConcepts: ["Symmetry", "Even Functions", "Odd Functions"],
+        questions: [
+          {
+            id: "cp-1-7-a",
+            question: "Is $f(x) = 4x^3 - 5x$ even, odd, or neither?",
+            options: [
+              "Odd",
+              "Even",
+              "Neither",
+              "Cannot be determined",
+            ],
+            correctIndex: 0,
+            explanation: "$f(-x) = 4(-x)^3 - 5(-x) = -4x^3 + 5x = -(4x^3 - 5x) = -f(x)$, so $f$ is odd.",
+            concept: "Odd Functions",
+            errorCategory: "conceptual",
+            contentType: "definition",
+            difficulty: "standard",
+          },
+        ],
+      },
+      {
         id: "absolute-value-function",
         kind: "text",
         hideTitle: true,
@@ -544,7 +747,47 @@ export default function Section11Page() {
         alt: "Graph illustrating the symmetry of the absolute value function",
         caption: "**Figure 1.14** The graph of $f(x) = |x|$ is symmetric about the y-axis.",
         maxHeightPx: 320,
-      },   
+      },
+      {
+        id: "quiz-cp-1-8",
+        kind: "quiz",
+        title: "Checkpoint 1.8 — Absolute Value Function",
+        sectionConcepts: ["Absolute Value", "Domain and Range"],
+        questions: [
+          {
+            id: "cp-1-8-a",
+            question: "For $f(x) = |x + 2| - 4$, what is the domain?",
+            options: [
+              "$(-\\infty, \\infty)$",
+              "$\\{x \\mid x \\geq -2\\}$",
+              "$\\{x \\mid x \\geq -4\\}$",
+              "$\\{x \\mid x \\geq 0\\}$",
+            ],
+            correctIndex: 0,
+            explanation: "The absolute value is defined for all real numbers, so the domain is $(-\\infty, \\infty)$.",
+            concept: "Domain — Absolute Value",
+            errorCategory: "conceptual",
+            contentType: "definition",
+            difficulty: "scaffold",
+          },
+          {
+            id: "cp-1-8-b",
+            question: "For $f(x) = |x + 2| - 4$, what is the range?",
+            options: [
+              "$\\{y \\mid y \\geq -4\\}$",
+              "$\\{y \\mid y \\geq -2\\}$",
+              "$(-\\infty, \\infty)$",
+              "$\\{y \\mid y \\geq 0\\}$",
+            ],
+            correctIndex: 0,
+            explanation: "Since $|x+2| \\geq 0$, we have $f(x) = |x+2| - 4 \\geq -4$. The minimum value $-4$ is achieved at $x = -2$.",
+            concept: "Range — Absolute Value",
+            errorCategory: "conceptual",
+            contentType: "formula",
+            difficulty: "standard",
+          },
+        ],
+      },
     ];
   }, [chapterId, sectionId, rewriteFilename]);
 
@@ -592,6 +835,12 @@ export default function Section11Page() {
           </span>
           <Link href="/score" className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors">
             My Score
+          </Link>
+          <Link
+            href="/practice/1-1"
+            className="text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Practice
           </Link>
           <Link
             href="/quiz"
